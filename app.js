@@ -1,4 +1,4 @@
-var app = angular.module('huackerNews', []);
+var app = angular.module('huackerNews', ['ui.router']);
 
 // Declare a posts service
 app.factory('posts', function() {
@@ -36,3 +36,17 @@ function($scope, posts) {
         post.upvotes += 1;
     }
 }]);
+
+app.config([
+    '$stateProvider',
+    '$urlRouterProvider',
+    function($stateProvider, $urlRouterProvider) {
+        $stateProvider.state('home', {
+            url: '/home',
+            templateUrl: '/index.html',
+            controller: 'MainCtrl'
+        });
+
+        $urlRouterProvider.otherwise('home');
+    }
+]);
