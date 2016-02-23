@@ -1,0 +1,31 @@
+.glyphicon-thumbs-up { 
+    cursor: pointer;
+}
+
+#mainContainer {
+    margin-top: 10px;
+}
+
+#header {
+    background-color: rgb(255, 102, 0);
+}
+
+#postsContainer {
+    background-color: rgb(246, 246, 239);
+    padding: 10px;
+}
+
+#postInfo {
+    font-size: 16px; 
+    margin-left: 10px;
+}
+
+#title {
+    padding: 3px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 12pt;
+}
+
+#form {
+    margin-top: 30px;        
+}
