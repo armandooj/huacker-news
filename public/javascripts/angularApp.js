@@ -1,75 +1,87 @@
 var app = angular.module('huackerNews', ['ui.router']);
 
 // Declare a posts service
-app.factory('posts', function() {
+app.factory('posts', [
+'$http',
+function($http) {
     var o = {
-        posts: [
-            {
-                title: 'German government to use Trojan spyware to monitor citizens', 
-                upvotes: 3,
-                comments: [
-                    {author: 'Joe', body: 'Cool post!', upvotes: 0},
-                    {author: 'Doe', body: 'Pff, horrible post.', upvotes: 1}
-                ]
-            },
-            {
-                title: 'Million Dollar Curve',
-                upvotes: 5,
-                comments: [
-                    {author: 'Mark', body: 'Thank you', upvotes: 2},
-                    {author: 'Bob', body: 'This is a comment.', upvotes: 0}
-                ]
-            }
-        ]
+        posts: []
+    };
+    o.get = function(id) {
+        return $http.get('/posts/' + id).then(function(res) {
+            return res.data;
+        });
+    };
+    o.getAll = function() {
+        return $http.get('/posts').then(function(res) {
+            // Create a deep copy so that $scope.posts is also updated
+            angular.copy(res.data, o.posts);
+        });
+    };
+    o.create = function(post) {
+        return $http.post('/posts', post).then(function(res) {
+            o.posts.push(res.data);
+        });
+    };
+    o.upvote = function(post) {
+        return $http.put('/posts/' + post._id + '/upvote').then(function(res) {
+            post.upvotes += 1;
+        });
+    };
+    o.addComment = function(id, comment) {
+        return $http.post('/posts/' + id + '/comments', comment);
+    };
+    o.upvoteComment = function(post, comment) {
+        return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote')
+        .then(function(data) {
+            comment.upvotes += 1;
+        });
     };
     return o;
-});
+}]);
 
 app.controller('MainCtrl', [
 '$scope',
 'posts', // Injecting the service
 function($scope, posts) {
-    $scope.test = 'Hello World';
     $scope.posts = posts.posts;
     
     $scope.addPost = function() {
         if (!$scope.title || $scope.title === '') {
             return; 
         }
-        $scope.posts.push({
+        posts.create({
             title: $scope.title,
             link: $scope.link,
-            upvotes: 0,
-            comments: [
-                {author: 'Joe', body: 'Cool post!', upvotes: 0},
-                {author: 'Doe', body: 'Pff, horrible post.', upvotes: 0}
-            ]
         });
         $scope.title = '';
         $scope.link = '';
     };
     $scope.incrementUpvotes = function(post) {
-        post.upvotes += 1;
+        posts.upvote(post);
     }  
 }]);
 
 app.controller('PostsCtrl', [
-'$scope',
-'$stateParams',
-'posts',
-function($scope, $stateParams, posts) {  
-    $scope.post = posts.posts[$stateParams.id];
+'$scope', 'posts', 'post',
+function($scope, posts, post) {  
+    $scope.post = post;
 
     $scope.addComment = function() {
         if ($scope.body === '') {
             return;
         }
-        $scope.post.comments.push({
+        posts.addComment(post._id, {
             author: 'user',
             body: $scope.body,
-            upvotes: 0
+        }).then(function(res) {
+            $scope.post.comments.push(res.data);
         });
         $scope.body = '';
+    };
+
+    $scope.incrementUpvotes = function(comment) {
+        posts.upvoteComment(post, comment);
     }
 }]);
 
@@ -81,12 +93,22 @@ app.config([
         .state('home', {
             url: '/home',
             templateUrl: '/index.html',
-            controller: 'MainCtrl'
+            controller: 'MainCtrl',
+            resolve: {
+                postPromise: ['posts', function(posts) {
+                    return posts.getAll();
+                }]
+            }
         })
         .state('posts', {
             url: '/posts/{id}',
             templateUrl: '/posts.html',
-            controller: 'PostsCtrl'
+            controller: 'PostsCtrl',
+            resolve: {
+                post: ['$stateParams', 'posts', function($stateParams, posts) {
+                    return posts.get($stateParams.id);
+                }]
+            }
         });
 
         $urlRouterProvider.otherwise('home');

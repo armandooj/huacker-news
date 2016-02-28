@@ -46,12 +46,12 @@ router.param('post', function(req, rest, next, id) {
 
 router.get('/posts/:post', function(req, res) {
     // Automatically load the comments associated with this post
-    req.res.populate('comments', function(err, post) {
+    req.post.populate('comments', function(err, post) {
         if (err) {
             return next(err);
         }
         res.json(post);
-    })    
+    });
 });
 
 router.put('/posts/:post/upvote', function(req, res, next) {
@@ -97,7 +97,7 @@ router.post('/posts/:post/comments', function(req, res, next) {
 });
 
 router.put('/posts/:post/comments/:comment/upvote', function(req, res, next) {
-    req.post.upvote(function(err, comment) {
+    req.comment.upvote(function(err, comment) {
         if (err) {
             return next(err);
         }
