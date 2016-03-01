@@ -10,16 +10,22 @@
   <body ng-app="huackerNews">
     <div class="row">
       <div class="col-md-6 col-md-offset-3" id="mainContainer">
+        <div id="header">
+          <b id="title">Huacker News</b>
+          <div class="pull-right" ng-controller="NavCtrl">
+            <a ng-show="isLoggedIn()">{{currentUser()}}</a>
+            <a ng-show="isLoggedIn()" href="" ng-click="logOut()">Log Out</a>
+            <a ng-hide="isLoggedIn()" href="/#/login">Log In</a>
+            <a ng-hide="isLoggedIn()" href="/#/register">Register</a>
+          </div>
+        </div>
+        <!-- Template view -->
         <ui-view></ui-view>
       </div>
     </div>
 
     <!-- Home template -->
     <script type="text/ng-template" id="/index.html">
-      <div id="header">
-        <b id="title">Huacker News</b>
-      </div>
-
       <div id="postsContainer">
         <div ng-repeat="post in posts | orderBy:'-upvotes'">
           <span class="glyphicon glyphicon-thumbs-up" ng-click="incrementUpvotes(post)"></span>
@@ -52,10 +58,6 @@
 
     <!-- Post template -->
     <script type="text/ng-template" id="/posts.html">
-      <div id="header">
-        <b id="title">Huacker News</b>
-      </div>
-
       <div id="postsContainer">
         <h3>
           <a ng-show="post.link" href="{{post.link}}">
@@ -86,10 +88,6 @@
 
     <!-- Registration template -->
     <script type="text/ng-template" id="/register.html">
-      <div id="header">
-        <b id="title">Huacker News</b>
-      </div>
-
       <div id="postsContainer">
         <div ng-show="error" class="alert alert-danger row">
           <span>{{error.message}}</span>
@@ -111,10 +109,6 @@
 
     <!-- Login template -->
     <script type="text/ng-template" id="/login.html">
-      <div id="header">
-        <b id="title">Huacker News</b>
-      </div>
-
       <div id="postsContainer">
         <div ng-show="error" class="alert alert-danger row">
           <span>{{error.message}}</span>
