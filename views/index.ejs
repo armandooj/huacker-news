@@ -37,13 +37,16 @@
             <span ng-hide="post.link">
               {{post.title}}
             </span>
+            <span ng-show="post.author">
+              posted by <a>{{post.author}}</a> |
+            </span>
             <span>
               <a href="#/posts/{{post._id}}">Comments</a>
             </span>
           </span>
         </div>
 
-        <form ng-submit="addPost()" id="form">
+        <form ng-show="isLoggedIn()" ng-submit="addPost()" id="form">
           <h3>Add a new post</h3>
           <div class="form-group">
             <input type="text" class="form-control" placeholder="Title" ng-model="title"></input>
@@ -53,6 +56,10 @@
           </div>
           <button type="submit" class="btn btn-primary">Post</button>
         </form>
+
+        <div ng-hide="isLoggedIn()">
+          <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a post.</h3>
+        </div>
       </div>
     </script>
 
@@ -76,13 +83,17 @@
           </span>
         </div>      
 
-        <form ng-submit="addComment()">
+        <form ng-show="isLoggedIn()" ng-submit="addComment()">
           <h3>Add a new comment</h3>
           <div class="form-group">
             <input type="text" class="form-control" placeholder="Comment" ng-model="body"></input>
           </div>
           <button type="submit" class="btn btn-primary">Post</button>
         </form>
+
+        <div ng-hide="isLoggedIn()">
+          <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can comment.</h3>
+        </div>
       </div> 
     </script>
 

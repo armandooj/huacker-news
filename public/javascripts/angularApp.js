@@ -2,8 +2,8 @@ var app = angular.module('huackerNews', ['ui.router']);
 
 // Declare a posts service
 app.factory('posts', [
-'$http',
-function($http) {
+'$http', 'auth',
+function($http, auth) {
     var o = {
         posts: []
     };
@@ -19,20 +19,28 @@ function($http) {
         });
     };
     o.create = function(post) {
-        return $http.post('/posts', post).then(function(res) {
+        return $http.post('/posts', post, {
+            headers: {Authorization: 'Bearer ' + auth.getToken()}
+        }).then(function(res) {
             o.posts.push(res.data);
         });
     };
     o.upvote = function(post) {
-        return $http.put('/posts/' + post._id + '/upvote').then(function(res) {
+        return $http.put('/posts/' + post._id + '/upvote', null, {
+            headers: {Authorization: 'Bearer ' + auth.getToken()}
+        }).then(function(res) {
             post.upvotes += 1;
         });
     };
     o.addComment = function(id, comment) {
-        return $http.post('/posts/' + id + '/comments', comment);
+        return $http.post('/posts/' + id + '/comments', comment, {
+            headers: {Authorization: 'Bearer ' + auth.getToken()}
+        });
     };
     o.upvoteComment = function(post, comment) {
-        return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote')
+        return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote', null, {
+            headers: {Authorization: 'Bearer ' + auth.getToken()}
+        })
         .then(function(data) {
             comment.upvotes += 1;
         });
@@ -81,11 +89,11 @@ app.factory('auth', ['$http', '$window', function($http, $window) {
 }]);
 
 app.controller('MainCtrl', [
-'$scope',
-'posts', // Injecting the service
-function($scope, posts) {
+'$scope', 'posts', 'auth',
+function($scope, posts, auth) {
     $scope.posts = posts.posts;
-    
+    $scope.isLoggedIn = auth.isLoggedIn;
+
     $scope.addPost = function() {
         if (!$scope.title || $scope.title === '') {
             return; 
@@ -103,9 +111,10 @@ function($scope, posts) {
 }]);
 
 app.controller('PostsCtrl', [
-'$scope', 'posts', 'post',
-function($scope, posts, post) {  
+'$scope', 'posts', 'post', 'auth',
+function($scope, posts, post, auth) {  
     $scope.post = post;
+    $scope.isLoggedIn = auth.isLoggedIn;
 
     $scope.addComment = function() {
         if ($scope.body === '') {
